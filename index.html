@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星喰い女の星見診断</title>
+<meta name="description" content="あんたの中で、いちばん育ってる星は？ 8つの質問で見つける、星喰い女の星見診断。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#07060f;
+    --bg-mid:#120f26;
+    --panel:rgba(24,20,48,0.72);
+    --line:rgba(170,140,255,0.26);
+    --line-strong:rgba(190,160,255,0.6);
+    --violet:#a98bff;
+    --violet-bright:#cdb8ff;
+    --text:#ece8f7;
+    --text-dim:#a9a2c4;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    color:var(--text);
+    font-family:'Zen Kaku Gothic New','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+    background:
+      radial-gradient(ellipse 70% 45% at 78% 8%, rgba(120,80,220,0.34), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 12% 30%, rgba(40,70,170,0.26), transparent 70%),
+      radial-gradient(ellipse 80% 50% at 50% 105%, rgba(110,60,170,0.28), transparent 70%),
+      linear-gradient(180deg, var(--bg-mid), var(--bg-deep) 60%);
+    background-attachment:fixed;
+    position:relative;
+    overflow-x:hidden;
+  }
+  /* 星 */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none;
+    background-image:
+      radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,0.9), transparent 60%),
+      radial-gradient(1px 1px at 28% 62%, rgba(255,255,255,0.7), transparent 60%),
+      radial-gradient(1.4px 1.4px at 44% 30%, rgba(205,184,255,0.9), transparent 60%),
+      radial-gradient(1px 1px at 61% 78%, rgba(255,255,255,0.6), transparent 60%),
+      radial-gradient(1.3px 1.3px at 73% 22%, rgba(255,255,255,0.85), transparent 60%),
+      radial-gradient(1px 1px at 86% 54%, rgba(205,184,255,0.7), transparent 60%),
+      radial-gradient(1px 1px at 93% 86%, rgba(255,255,255,0.6), transparent 60%),
+      radial-gradient(1.1px 1.1px at 6% 82%, rgba(255,255,255,0.7), transparent 60%),
+      radial-gradient(1px 1px at 52% 8%, rgba(255,255,255,0.6), transparent 60%),
+      radial-gradient(1px 1px at 36% 92%, rgba(205,184,255,0.6), transparent 60%);
+  }
+  .wrap{
+    position:relative;
+    max-width:560px;
+    margin:0 auto;
+    padding:44px 16px 64px;
+  }
+  .screen{ display:none; animation:fade .5s ease; }
+  .screen.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+
+  .mark{
+    width:54px; height:54px; margin:0 auto 18px; display:block;
+  }
+  h1{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:0.12em;
+    text-align:center;
+    margin:0 0 10px;
+    color:var(--violet-bright);
+  }
+  .subtitle{
+    text-align:center;
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:15px;
+    letter-spacing:0.08em;
+    color:var(--text-dim);
+    margin:0 0 34px;
+  }
+  .lead{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:16px;
+    line-height:2.1;
+    text-align:center;
+    margin:0 0 36px;
+  }
+  .center{ text-align:center; }
+
+  button{
+    font-family:inherit;
+    cursor:pointer;
+    color:var(--text);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn-main{
+    display:inline-block;
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:0.16em;
+    padding:15px 42px;
+    border-radius:999px;
+    border:1px solid var(--line-strong);
+    background:linear-gradient(180deg, rgba(150,115,255,0.42), rgba(90,60,190,0.42));
+    color:#fff;
+    text-decoration:none;
+    box-shadow:0 0 24px rgba(140,100,255,0.28);
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .btn-main:hover{ box-shadow:0 0 32px rgba(160,120,255,0.45); }
+  .btn-main:active{ transform:translateY(1px); }
+  .btn-main[aria-disabled="true"]{
+    opacity:0.55; pointer-events:none; box-shadow:none;
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:10px 26px;
+    font-size:13px;
+    letter-spacing:0.1em;
+    color:var(--text-dim);
+  }
+  .btn-ghost:hover{ border-color:var(--line-strong); color:var(--text); }
+
+  /* 質問 */
+  .progress{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:26px;
+    font-size:12px; letter-spacing:0.14em; color:var(--text-dim);
+  }
+  .bar{
+    flex:1; height:2px; background:rgba(170,140,255,0.16); border-radius:2px; overflow:hidden;
+  }
+  .bar span{
+    display:block; height:100%; width:0;
+    background:linear-gradient(90deg, var(--violet), var(--violet-bright));
+    transition:width .35s ease;
+  }
+  .q-text{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:19px;
+    line-height:1.8;
+    margin:0 0 24px;
+  }
+  .options{ display:grid; gap:10px; }
+  .opt{
+    width:100%;
+    text-align:left;
+    font-size:15px;
+    line-height:1.7;
+    padding:15px 16px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    backdrop-filter:blur(6px);
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .opt:hover{ border-color:var(--line-strong); }
+  .opt:active, .opt.picked{
+    border-color:var(--violet-bright);
+    background:rgba(120,90,230,0.3);
+    transform:scale(0.995);
+  }
+  .back-row{ margin-top:22px; text-align:center; min-height:38px; }
+
+  /* 結果 */
+  .result-label{
+    text-align:center;
+    font-size:12px;
+    letter-spacing:0.2em;
+    color:var(--text-dim);
+    margin:0 0 10px;
+  }
+  .star-name{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:0.14em;
+    text-align:center;
+    color:var(--violet-bright);
+    margin:0 0 22px;
+    text-shadow:0 0 22px rgba(160,120,255,0.5);
+  }
+  .word{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:17px;
+    line-height:1.9;
+    text-align:center;
+    margin:0 0 28px;
+    padding:0 6px;
+    white-space:pre-line;
+    word-break:auto-phrase;
+    text-wrap:balance;
+  }
+  .card{
+    border:1px solid var(--line);
+    background:var(--panel);
+    backdrop-filter:blur(6px);
+    border-radius:14px;
+    padding:22px 18px;
+    margin-bottom:14px;
+  }
+  .card p{
+    margin:0 0 14px;
+    font-size:15px;
+    line-height:2;
+    word-break:auto-phrase;
+  }
+  .card p:last-child{ margin-bottom:0; }
+  .card h2{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.2em;
+    color:var(--violet);
+    margin:0 0 12px;
+  }
+  .invite{
+    margin-top:34px;
+    text-align:center;
+  }
+  .invite p{
+    font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif;
+    font-size:15px;
+    line-height:2.1;
+    margin:0 0 20px;
+  }
+  .invite .note{
+    font-family:inherit;
+    font-size:12px; color:var(--text-dim); margin-top:12px;
+  }
+  .again{ margin-top:30px; text-align:center; }
+  footer{
+    margin-top:46px;
+    text-align:center;
+    font-size:11px;
+    line-height:1.9;
+    color:rgba(169,162,196,0.75);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 入口 -->
+  <section class="screen active" id="screen-intro">
+    <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#a98bff" stroke-width="1.2" opacity="0.6"/>
+      <path d="M50 14 L57 43 L86 50 L57 57 L50 86 L43 57 L14 50 L43 43 Z" fill="#cdb8ff" opacity="0.92"/>
+      <circle cx="50" cy="50" r="5" fill="#07060f"/>
+    </svg>
+    <h1>星喰い女の星見診断</h1>
+    <p class="subtitle">あんたの中で、いちばん育ってる星は？</p>
+    <p class="lead">
+      あんたの中で、いちばん育ってる星を<br>見つけてあげる。<br>
+      8つ答えなさい。1分で終わるわ。<br><br>
+      深く考えなくていい。<br>いちばん近いと思ったものを選びなさい。
+    </p>
+    <div class="center">
+      <button class="btn-main" id="startBtn" type="button">はじめる</button>
+    </div>
+  </section>
+
+  <!-- 質問 -->
+  <section class="screen" id="screen-quiz">
+    <div class="progress">
+      <span id="progressText">1 / 8</span>
+      <div class="bar"><span id="progressBar"></span></div>
+    </div>
+    <h2 class="q-text" id="qText"></h2>
+    <div class="options" id="options"></div>
+    <div class="back-row">
+      <button class="btn-ghost" id="backBtn" type="button">ひとつ前に戻る</button>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section class="screen" id="screen-result">
+    <p class="result-label">あんたの中でいちばん育ってるのは</p>
+    <h1 class="star-name" id="starName"></h1>
+    <p class="word" id="starWord"></p>
+
+    <div class="card" id="starBody"></div>
+
+    <div class="card">
+      <h2>この星の奥にあるもの</h2>
+      <p id="starInner"></p>
+    </div>
+
+    <div class="card">
+      <h2>今日の一歩</h2>
+      <p id="starStep"></p>
+    </div>
+
+    <div class="invite">
+      <p>
+        ここまでは、同じ星を持つ人間<br>みんなに当てはまる話よ。<br><br>
+        あんた自身の星が、どこで育ってきたのか。<br>
+        奥にどんな星が隠れてるのか。<br>
+        ちゃんと視てほしいなら、LINEにいらっしゃい。
+      </p>
+      <a class="btn-main" id="lineBtn" href="#" target="_blank" rel="noopener">LINEで視てもらう</a>
+      <p class="note" id="lineNote" hidden>LINEは準備中です。もう少し待ってなさい。</p>
+    </div>
+
+    <div class="again">
+      <button class="btn-ghost" id="retryBtn" type="button">もう一度やる</button>
+    </div>
+  </section>
+
+  <footer>
+    この診断は、今の気持ちの傾向を知るための読みものです。<br>
+    医療や専門家への相談の代わりにはなりません。
+  </footer>
+</div>
+
+<script>
+/* ====== 設定：公式LINEができたら、ここに入れる ======
+   LINE_ID  : 公式LINEのID（@から始まるもの。例 "@abc1234x"）
+              入れると、結果の星の名前が入力された状態でトーク画面が開く
+   LINE_URL : 友だち追加のURL。LINE_ID が空の時だけ使う（星の名前は入力されない） */
+const LINE_ID = "";
+const LINE_URL = "https://line.me/R/ti/p/%40370lvxij";
+const STAR_WORD = { a:"不安", b:"恐れ", c:"未練", d:"自己否定", e:"嫉妬" };
+
+/* ====== 質問（a=不安 / b=恐れ / c=未練 / d=自己否定 / e=嫉妬） ====== */
+const QUESTIONS = [
+  { q: "夜、布団に入ってから考えてしまうのは？",
+    o: { a:"まだ起きてもいない、この先の心配",
+         b:"今日、言えなかった一言",
+         c:"もう終わったはずの人のこと",
+         d:"今日の自分のダメだったところ",
+         e:"あの人はうまくいってるのに、という気持ち" } },
+  { q: "スマホを開いて、つい見てしまうのは？",
+    o: { a:"悪いニュースや、もしもの時の情報",
+         b:"送ったメッセージに、返事や既読がついたかどうか",
+         c:"昔のやり取りや写真",
+         d:"「こういう人はダメ」という記事の、自分に当てはまるところ",
+         e:"気になる誰かの、うまくいってそうな投稿" } },
+  { q: "ほめられた時、最初に浮かぶのは？",
+    o: { a:"そのうち、がっかりされるかもしれない",
+         b:"何かお返しをしなきゃ",
+         c:"あの人にも、こう言ってほしかったな",
+         d:"いやいや、そんなことない",
+         e:"でも、あの人のほうがもっとすごい" } },
+  { q: "予定のない休みの日、気づくとしているのは？",
+    o: { a:"来週のことを考えて、落ち着かない",
+         b:"誰かの頼まれごとや、人の用事",
+         c:"昔よく行った場所や、思い出の曲をたどる",
+         d:"何もできなかった、と自分を責める",
+         e:"人の楽しそうな休日を見て、自分の休みがつまらなく思える" } },
+  { q: "つい口から出る言葉は？",
+    o: { a:"「もし〜だったらどうしよう」",
+         b:"「私は大丈夫」「どっちでもいいよ」",
+         c:"「あの頃はよかった」",
+         d:"「どうせ私なんて」",
+         e:"「いいよね、あの人は」" } },
+  { q: "誰かに嫌なことを言われた。そのあと、あんたは？",
+    o: { a:"また言われるかもしれない、と先のことが心配になる",
+         b:"その場では笑って、あとでひとりで落ち込む",
+         c:"前にも似たことがあった、と昔のことまで思い出す",
+         d:"言われるような自分が悪い、と思う",
+         e:"あの人は言われないのに、なんで私だけ、と思う" } },
+  { q: "なかなか手放せないのは？",
+    o: { a:"もしもの時のための備え",
+         b:"本当は気が重い付き合い",
+         c:"思い出の品や、昔のやり取り",
+         d:"自分の失敗の記憶",
+         e:"あの人と自分を比べる癖" } },
+  { q: "今、いちばん欲しいのは？",
+    o: { a:"「大丈夫」と思える安心",
+         b:"言いたいことを言っても、嫌われない関係",
+         c:"気持ちに区切りをつけること",
+         d:"自分を好きだと思える感覚",
+         e:"人と比べなくても平気な自分" } }
+];
+
+/* ====== 結果 ====== */
+const RESULTS = {
+  a: { name:"不安の星",
+       word:"まだ起きてないことで、今日を使い切ってるわね。",
+       body:[
+         "この星は、先のことを考える力が強い人の中で育つの。用心深く生きてきたから、大きな失敗をせずにここまで来られた。そこは誇っていいわ。",
+         "ただ、先回りの心配が増えすぎると、今日うまくいったことまで見えなくなる。あんたが疲れてるのは、何かが起きたからというより、起きるかもしれないことを毎日先に体験してるからよ。" ],
+       inner:"不安の星の奥には、たいてい希望の星が隠れてる。先のことを考えられる人は、いい未来も思い描ける人だから。",
+       step:"気になっていることを一つ紙に書いて、今日できることが一つでもあるかだけ確かめなさい。なければ、今夜は置いておいていいわ。" },
+  b: { name:"恐れの星",
+       word:"言えなかった一言を、いくつ抱えてるの。",
+       body:[
+         "嫌われるのが怖くて、自分の「こうしたい」を先に引っ込めてきたでしょう。それは、人との縁を大事にしてきたってこと。弱いわけじゃないわ。",
+         "ただ、引っ込めるのが続くと、相手が変わっても、同じ場面で言葉が出なくなる。ひとりになってから会話を巻き戻す夜が増えてるなら、この星はもうだいぶ育ってるわね。" ],
+       inner:"恐れの星の奥には、たいてい自由の星が隠れてる。言いたいことを言える場所を、あんたはずっと探してきたのよ。",
+       step:"どうでもいい小さなことで、「私はこっちがいい」を一回だけ言ってみなさい。お昼に何を食べるか、くらいでいいの。" },
+  c: { name:"未練の星",
+       word:"終わったのは関係だけ。気持ちはまだ、そこにいるのね。",
+       body:[
+         "忘れられないのは、いい加減に好きだったわけじゃないから。そこは責めなくていいわ。",
+         "ただ、あんたが恋しがってるのは、あの人そのものより、あの人といた頃の自分かもしれない。大事にされていた自分。よく笑っていた自分。そこを取り違えたままだと、この星はなかなか小さくならないの。" ],
+       inner:"未練の星の奥には、たいてい愛の星が隠れてる。ちゃんと誰かを好きになれた人にしか、この星は育たないもの。",
+       step:"あの頃よくしていたことで、ひとりでもできることをひとつ思い出しなさい。やるのは、思い出したあとでいいわ。" },
+  d: { name:"自己否定の星",
+       word:"自分にだけ、ずいぶん厳しいのね。",
+       body:[
+         "ほめられても受け取れない。自分のためにお金や時間を使うと、なんだか後ろめたい。それは、ずっと誰かを先にしてきた人の癖よ。",
+         "あんたは人を見る時にはやさしいのに、自分を見る時だけ採点が厳しい。その採点を続けてるかぎり、何をやっても「まだ足りない」が残るわ。" ],
+       inner:"自己否定の星の奥には、たいてい自信の星が隠れてる。自分に厳しい人は、もともと高いところを見られる人よ。",
+       step:"次にほめられたら、否定しないで「ありがとう」だけで受け取りなさい。落ち着かなくても、それでいいの。" },
+  e: { name:"嫉妬の星",
+       word:"うらやましいと思う自分を、嫌わなくていいわ。",
+       body:[
+         "誰かと比べて苦しくなるのは、あんたにも欲しいものがちゃんとあるから。嫉妬の星は、あんたが本当は何を欲しがっているのか、その場所を教えてくれる星でもあるの。",
+         "厄介なのは、見ないふりをした時。そうすると、相手の粗を探すことでしか落ち着けなくなっていくわ。" ],
+       inner:"嫉妬の星の奥には、たいてい好奇心の星が隠れてる。うらやましいと思えるのは、まだ何かに手を伸ばしたい気持ちが残ってるってことよ。",
+       step:"うらやましいと思った相手の「何が」うらやましかったのか、一言で書きなさい。相手の名前は書かなくていいわ。" }
+};
+
+const ORDER = ["a","b","c","d","e"];
+let current = 0;
+let answers = [];
+let shuffled = [];
+
+const $ = id => document.getElementById(id);
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo({ top:0, behavior:"auto" });
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function start(){
+  current = 0;
+  answers = [];
+  shuffled = QUESTIONS.map(() => shuffle(ORDER));
+  show("screen-quiz");
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const item = QUESTIONS[current];
+  $("progressText").textContent = (current + 1) + " / " + QUESTIONS.length;
+  $("progressBar").style.width = (current / QUESTIONS.length * 100) + "%";
+  $("qText").textContent = item.q;
+  $("backBtn").style.visibility = current === 0 ? "hidden" : "visible";
+
+  const box = $("options");
+  box.innerHTML = "";
+  shuffled[current].forEach(key => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "opt" + (answers[current] === key ? " picked" : "");
+    b.textContent = item.o[key];
+    b.addEventListener("click", () => pick(key, b));
+    box.appendChild(b);
+  });
+}
+
+function pick(key, btn){
+  answers[current] = key;
+  btn.classList.add("picked");
+  setTimeout(() => {
+    if(current < QUESTIONS.length - 1){
+      current++;
+      renderQuestion();
+    }else{
+      showResult();
+    }
+  }, 180);
+}
+
+function back(){
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+}
+
+/* いちばん点が多い星。同点は Q8 → Q1 → a,b,c,d,e の順で決める */
+function decide(){
+  const score = { a:0, b:0, c:0, d:0, e:0 };
+  answers.forEach(k => { score[k]++; });
+  const max = Math.max(...ORDER.map(k => score[k]));
+  const top = ORDER.filter(k => score[k] === max);
+  if(top.length === 1) return top[0];
+  const last = answers[answers.length - 1];
+  if(top.includes(last)) return last;
+  if(top.includes(answers[0])) return answers[0];
+  return top[0];
+}
+
+function showResult(){
+  const key = decide();
+  const r = RESULTS[key];
+  setupLine(key);
+  $("starName").textContent = r.name;
+  $("starWord").textContent = r.word.replace(/。(?=.)/g, "。" + String.fromCharCode(10));
+  $("starBody").innerHTML = "";
+  r.body.forEach(t => {
+    const p = document.createElement("p");
+    p.textContent = t;
+    $("starBody").appendChild(p);
+  });
+  $("starInner").textContent = r.inner;
+  $("starStep").textContent = r.step;
+  show("screen-result");
+}
+
+function setupLine(key){
+  const btn = $("lineBtn");
+  const note = $("lineNote");
+  if(LINE_ID){
+    btn.href = "https://line.me/R/oaMessage/" + encodeURIComponent(LINE_ID) + "/?" + encodeURIComponent(STAR_WORD[key]);
+    note.textContent = "「" + STAR_WORD[key] + "」と入った画面が開くわ。そのまま送りなさい。";
+    note.hidden = false;
+  }else if(LINE_URL){
+    btn.href = LINE_URL;
+    note.hidden = true;
+  }else{
+    btn.setAttribute("aria-disabled", "true");
+    btn.removeAttribute("href");
+    note.hidden = false;
+  }
+}
+
+$("startBtn").addEventListener("click", start);
+$("backBtn").addEventListener("click", back);
+$("retryBtn").addEventListener("click", () => show("screen-intro"));
+</script>
+</body>
+</html>
